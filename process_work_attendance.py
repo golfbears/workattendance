@@ -34,7 +34,7 @@ def processKqTable(processType, totalSheet, inputSheet,totalRowOffset,totalColum
             #print(yearMonthDay,startYearMonthDay,stopYearMonthDay)
             if startYearMonthDay==stopYearMonthDay:#单日
                 if yearMonthDay==startYearMonthDay:#当前日期匹配
-                    logging.debug('单日'+processType+yearMonthDay[0]+yearMonthDay[1]+yearMonthDay[2]+startYearMonthDay[0]+startYearMonthDay[1]+startYearMonthDay[2])
+                    logging.debug(str(inputSheet.cell(row=row_index, column=2).value)+'的单日'+processType+':'+yearMonthDay[0]+yearMonthDay[1]+yearMonthDay[2]+'-'+startTime+'到'+stopTime)
                     fingerSheet.cell(row= totalRowOffset, column=totalColumnOffset).value = startTime
                     fingerSheet.cell(row= totalRowOffset, column=totalColumnOffset+1).value = stopTime
                     fingerSheet.cell(row= totalRowOffset, column=totalColumnOffset).style='Accent2'
@@ -45,15 +45,15 @@ def processKqTable(processType, totalSheet, inputSheet,totalRowOffset,totalColum
 
             elif startYearMonthDay[2]<=yearMonthDay[2] and stopYearMonthDay[2]>=yearMonthDay[2]:#多日而且当前日期在此区间
                 if yearMonthDay==startYearMonthDay:#开始日
-                    logging.debug(processType+'开始日'+ yearMonthDay[0]+yearMonthDay[1]+yearMonthDay[2]+startYearMonthDay[0]+startYearMonthDay[1]+startYearMonthDay[2])
+                    logging.debug(str(inputSheet.cell(row=row_index, column=2).value)+'的多日'+processType+'\n'+'开始于:'+ yearMonthDay[0]+yearMonthDay[1]+yearMonthDay[2]+'-'+startTime)
                     fingerSheet.cell(row= totalRowOffset, column=totalColumnOffset).value = startTime
                     fingerSheet.cell(row= totalRowOffset, column=totalColumnOffset+1).value = '18:00:00'    
                 elif yearMonthDay==stopYearMonthDay:  #结束日
-                    logging.debug(processType+'结束日'+ yearMonthDay[0]+yearMonthDay[1]+yearMonthDay[2]+stopYearMonthDay[0]+stopYearMonthDay[1]+stopYearMonthDay[2])
+                    logging.debug(processType+'\n结束于'+ yearMonthDay[0]+yearMonthDay[1]+yearMonthDay[2]+'-'+stopTime)
                     fingerSheet.cell(row= totalRowOffset, column=totalColumnOffset).value = '09:00:00'
                     fingerSheet.cell(row= totalRowOffset, column=totalColumnOffset+1).value = stopTime
                 else:#进行中
-                    logging.debug(processType+'进行中'+ yearMonthDay[0]+yearMonthDay[1]+yearMonthDay[2]+startYearMonthDay[0]+startYearMonthDay[1]+startYearMonthDay[2])
+                    logging.debug(processType+'进行中'+ yearMonthDay[0]+yearMonthDay[1]+yearMonthDay[2])
                     fingerSheet.cell(row= totalRowOffset, column=totalColumnOffset).value = '09:00:00'
                     fingerSheet.cell(row= totalRowOffset, column=totalColumnOffset+1).value = '18:00:00'
                 fingerSheet.cell(row= totalRowOffset, column=totalColumnOffset).style='Accent2'
@@ -61,27 +61,36 @@ def processKqTable(processType, totalSheet, inputSheet,totalRowOffset,totalColum
                 if processType == '请假':
                     fingerSheet.cell(row= totalRowOffset, column=totalColumnOffset+2).value = inputSheet.cell(row=row_index, column=4).value
                     fingerSheet.cell(row= totalRowOffset, column=totalColumnOffset+3).value = inputSheet.cell(row=row_index, column=8).value
-
-            #if inputSheet.cell(row=row_index, column=3).value != totalSheet.cell(row= totalRowOffset, column=3).value:    
-                 #logging.debug(inputSheet.cell(row=row_index, column=2).value+'出现在'+inputSheet.cell(row=row_index, column=3).value+'和'+fingerSheet.cell(row= totalRowOffset, column=3).value)
+'''
+            if inputSheet.cell(row=row_index, column=3).value != totalSheet.cell(row= totalRowOffset, column=3).value:  
+                #print(inputSheet.cell(row=row_index, column=2).value,inputSheet.cell(row=row_index, column=3).value,fingerSheet.cell(row= totalRowOffset, column=3).value)
+                if inputSheet.cell(row=row_index, column=3).value==None:
+                    logging.debug(inputSheet.cell(row=row_index, column=2).value+'在'+inputSheet.title+'的部门为空')  
+                elif totalSheet.cell(row= totalRowOffset, column=3).value == None:
+                    logging.debug(totalSheet.cell(row=row_index, column=2).value+'在'+totalSheet.title+'的部门为空') 
+                else:
+                    logging.debug(inputSheet.cell(row=row_index, column=2).value+'出现在'+inputSheet.cell(row=row_index, column=3).value+'和'+fingerSheet.cell(row= totalRowOffset, column=3).value)
+'''             
        # else:
        #      print(chuchaiSheet.cell(row=row_chuchai, column=2).value,fingerSheet.cell(row= row_line, column=2).value,'不是一个人')
 
 def checkKqTable(Sheet, curLine):
-    time=[Sheet.cell(row= curLine, column=5).value,Sheet.cell(row= curLine, column=6).value,Sheet.cell(row= curLine, column=7).value,Sheet.cell(row= curLine, column=8).value,\
+###
+
+    
+    officeTime=[Sheet.cell(row= curLine, column=5).value,Sheet.cell(row= curLine, column=6).value,Sheet.cell(row= curLine, column=7).value,Sheet.cell(row= curLine, column=8).value,\
           Sheet.cell(row= curLine, column=11).value,Sheet.cell(row= curLine, column=12).value,Sheet.cell(row= curLine, column=13).value,Sheet.cell(row= curLine, column=14).value]
     
     if Sheet.cell(row= curLine, column=5).value=='invalid' and Sheet.cell(row= curLine, column=7).value==None \
        and Sheet.cell(row= curLine, column=11).value==None and Sheet.cell(row= curLine, column=13).value==None:
+        Sheet.cell(row= row_line, column=1).style = 'Accent4'   
         return    
     elif Sheet.cell(row= curLine, column=5).value!='invalid' and Sheet.cell(row= curLine, column=5).value==Sheet.cell(row= curLine, column=6).value \
          and Sheet.cell(row= row_line, column=5).style != 'Accent6':
         print(Sheet.cell(row= row_line, column=2).value, Sheet.cell(row= row_line, column=4).value,'颜色标注缺失')
-        print(time,Sheet.cell(row= curLine, column=5).value,Sheet.cell(row= curLine, column=6).value,curLine)
+        print(officeTime,Sheet.cell(row= curLine, column=5).value,Sheet.cell(row= curLine, column=6).value,curLine)
     else:
-        #print(time,index)
         officeHour =0
-        officeMin=0
         vocationHour =0
         vocationMin=0
         journalHour =0
@@ -90,8 +99,8 @@ def checkKqTable(Sheet, curLine):
         localjournalMin=0
 
         if Sheet.cell(row= curLine, column=5).value!='invalid':#在公司的时间
-            leaveTiming = time[1].split(':')
-            arriveTiming = time[0].split(':')
+            leaveTiming = officeTime[1].split(':')
+            arriveTiming = officeTime[0].split(':')
         
             if int(leaveTiming[1]) < int(arriveTiming[1]):
               #  print(leaveTiming, arriveTiming)
@@ -103,11 +112,15 @@ def checkKqTable(Sheet, curLine):
             if officeHour < 9:
                # print(str(officeHour),str(officeMin), type(officeHour))
                 Sheet.cell(row= row_line, column=1).style = 'Accent4'
-
-                
+        elif Sheet.cell(row= curLine, column=6).value=='invalid':               
+            Sheet.cell(row= row_line, column=1).style = 'Accent4'
+        else:
+            Sheet.cell(row= row_line).style = 'Accent4'
+            
+        officeMin=0
         if Sheet.cell(row= curLine, column=7).value!= None: #请假的时间
-            vocationStop = time[3].split(':')
-            vocationStart = time[2].split(':')
+            vocationStop = officeTime[3].split(':')
+            vocationStart = officeTime[2].split(':')
       #      print('请假', vocationStop, vocationStart)
             if int(vocationStop[1]) < int(vocationStart[1]):
                 vocationHour = int(vocationStop[0])- int(vocationStart[0])-1
@@ -118,8 +131,8 @@ def checkKqTable(Sheet, curLine):
 
                
         if Sheet.cell(row= curLine, column=11).value!= None: #出差的时间
-            journalStop = time[5].split(':')
-            journalStart = time[4].split(':')
+            journalStop = officeTime[5].split(':')
+            journalStart = officeTime[4].split(':')
         #    print('出差',journalStop, journalStart)
             if int(journalStop[1]) < int(journalStart[1]):
                 journalHour = int(journalStop[0])- int(journalStart[0])-1
@@ -129,8 +142,8 @@ def checkKqTable(Sheet, curLine):
                 journalMin = int(journalStop[1])- int(journalStart[1])
 
         if Sheet.cell(row= curLine, column=13).value!= None: #外勤时间
-            localjournalStop = time[7].split(':')
-            localjournalStart = time[6].split(':')
+            localjournalStop = officeTime[7].split(':')
+            localjournalStart = officeTime[6].split(':')
        #     print('外勤',localjournalStop, localjournalStart)
             if int(localjournalStop[1]) < int(localjournalStart[1]):
                 localjournalHour = int(localjournalStop[0])- int(localjournalStart[0])-1
@@ -145,13 +158,13 @@ def checkKqTable(Sheet, curLine):
             dutyHour = localjournalHour+journalHour+vocationHour+officeHour
 
         if dutyHour < 9:
-            #print(Sheet.cell(row= row_line, column=2).value, Sheet.cell(row= row_line, column=4).value,curLine)
-            #print(str(localjournalHour),str(journalHour),str(vocationHour),str(officeHour))
-            #print(str(localjournalMin),str(journalMin),str(vocationMin),str(officeMin))
+            print(Sheet.cell(row= row_line, column=2).value, Sheet.cell(row= row_line, column=4).value,curLine)
+            print(str(localjournalHour),str(journalHour),str(vocationHour),str(officeHour))
+            print(str(localjournalMin),str(journalMin),str(vocationMin),str(officeMin))
             Sheet.cell(row= row_line, column=2).style = 'Accent4'
 
             
-#logging.debug('读取月度考勤原始数据表,然后处理外勤，请假，加班和出差，同时会标注考勤时间异常，帮助检查是否有补卡')
+logging.debug('读取月度考勤原始数据表,然后处理外勤，请假，加班和出差，同时会标注考勤时间异常，帮助检查是否有补卡')
 
 
 currentDir=os.getcwd()
@@ -163,46 +176,56 @@ jmark = 0
 cmark = 0
 for peformanceSheet in sheetList:
     sheetName=peformanceSheet.split('.')
-    #print(peformanceSheet)
+#    print(peformanceSheet)
+    if len(sheetName)==1:#目录里有文件夹，或者是其他的无后缀文件
+        continue
     if sheetName[1] == 'xlsx'and sheetName[0]!='当月考勤原始数据汇总':
         tableOpen=openpyxl.load_workbook(str(currentDir+'\\'+peformanceSheet),data_only=True)
         allSheetNames=tableOpen.get_sheet_names()
-        #print(allSheetNames)
-        logging.debug(allSheetNames)
+        print(allSheetNames)
         for curSheet in allSheetNames:
             if '考勤机' in curSheet:
+                #print('考勤机sheet名字匹配成功')
+                logging.debug('考勤机sheet名字匹配成功  '+str(curSheet))
                 fingerSheet=tableOpen.get_sheet_by_name(curSheet)
                 finger_kq=tableOpen
                 fmark+=1    
             if '外勤' in curSheet:
-                print('外勤sheet名字匹配成功')
+                #print('外勤sheet名字匹配成功')
+                logging.debug('外勤sheet名字匹配成功  '+str(curSheet))
                 waiqinSheet=tableOpen.get_sheet_by_name(curSheet)
                 wmark+=1
             elif '请假' in curSheet:
-                print('请假sheet名字匹配成功')
+                #print('请假sheet名字匹配成功')
+                logging.debug('请假sheet名字匹配成功  '+str(curSheet))
                 qingjiaSheet=tableOpen.get_sheet_by_name(curSheet)
                 qmark+=1
             elif '加班' in curSheet:
-                print('加班sheet名字匹配成功')
+                #print('加班sheet名字匹配成功')
+                logging.debug('加班sheet名字匹配成功  '+str(curSheet))
                 jiabanSheet=tableOpen.get_sheet_by_name(curSheet)
                 jmark+=1
             elif '出差' in curSheet:
-                print('出差sheet名字匹配成功')
+                #print('出差sheet名字匹配成功')
+                logging.debug('出差sheet名字匹配成功  '+str(curSheet))
                 chuchaiSheet=tableOpen.get_sheet_by_name(curSheet)
                 cmark+=1
 
+if cmark and jmark and qmark and wmark and fmark:
+    logging.debug('所有表的名字匹配成功,'+'出差配对次数：\n'+ str(cmark)+'\t加班配对次数：'+ str(jmark)+'\t请假配对次数：'+ str(qmark)+'\t外勤配对次数：'+ str(wmark)+'\t指纹机配对次数：'+ str(fmark))
+    print('所有表的名字匹配成功')
+#logging.debug(fingerSheet.title)
+#logging.debug(waiqinSheet.title)
+#logging.debug(chuchaiSheet.title)
+#logging.debug(qingjiaSheet.title)
+#logging.debug(jiabanSheet.title)
 
-logging.debug(fingerSheet.title)
-logging.debug(waiqinSheet.title)
-logging.debug(chuchaiSheet.title)
-logging.debug(qingjiaSheet.title)
-logging.debug(jiabanSheet.title)
+#logging.debug('首先合并所有信息到一个总表, 该表格目前有'+ str(fingerSheet.max_row)+'行要处理')
+ft = Font(bold=True)
+fingerSheet.freeze_panes = 'F2'
 
-logging.debug('首先合并所有信息到一个总表, 该表格目前有'+ str(fingerSheet.max_row)+'行要处理')
 fingerSheet['F1'] = '离开公司'+ str(fingerSheet['E1'].value)
 fingerSheet['E1'] = '进入公司'+ str(fingerSheet['E1'].value)
-
-ft = Font(bold=True)
 
 fingerSheet['G1']= '请假开始时间'
 fingerSheet['G1'].font=ft
@@ -240,7 +263,6 @@ fingerSheet['Q1'].font=ft
 fingerSheet['R1']= '补卡结束时间'
 fingerSheet['R1'].font=ft
 
-fingerSheet.freeze_panes = 'F2'
 
 
 for row_line in range(2,fingerSheet.max_row+1):     #skip the first line
@@ -282,9 +304,9 @@ for row_line in range(2,fingerSheet.max_row+1):     #skip the first line
 #sheet = tableNew.active
 #sheet = fingerSheet
 #tableNew.save(str(currentDir+'\\'+'result.xlsx'))
-
+#os.makedirs(str(currentDir+'\\处理结果'))
+#finger_kq.save(str(currentDir+'\\处理结果\\'+'当月考勤原始数据汇总.xlsx'))
 finger_kq.save(str(currentDir+'\\'+'当月考勤原始数据汇总.xlsx'))
-
 
 
 
